@@ -68,7 +68,7 @@ export default {
         const params =
           "username=" + this.form.name + "&password=" + this.form.password;
         this.axios.post(url, params).then(res => {
-          console.log(res.data);
+          // console.log(res.data);
           if (res.data.meta.status === 200) {
             this.$message({
               type: "success",
