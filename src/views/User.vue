@@ -1,12 +1,7 @@
 <template>
   <div>
     <!-- 面包屑导航区 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-    </el-breadcrumb>
-
+    <BreadCrumb :breadcrumb="breadcrumb" />
     <!-- 卡片区域 -->
     <el-card class="box-card">
       <!-- 搜索与添加区域 -->
@@ -87,6 +82,7 @@
                 type="warning"
                 icon="el-icon-setting"
                 size="mini"
+                @click="setRole(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -113,11 +109,35 @@
       :rowState="rowState"
       :editFrom="editFrom"
     />
+    <!-- 分配角色弹框 -->
+    <el-dialog title="分配角色" :visible.sync="roleDialogVisible" width="50%" @close="closeRole">
+      <div>
+        <p>当前的用户:{{ userInfo.username }}</p>
+        <p>当前的用户:{{ userInfo.role_name }}</p>
+        <p>
+          分配新角色:
+          <el-select v-model="selectedRoleId" placeholder="请选择">
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="roleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="savaRoleInfo">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import Dialog from "../components/Dialog.vue";
+import BreadCrumb from "../components/BreadCrumb.vue";
 export default {
   data() {
     return {
@@ -126,6 +146,10 @@ export default {
         query: "",
         pagenum: 1,
         pagesize: 10,
+      },
+      breadcrumb: {
+        title: "用户管理",
+        subTitle: "用户列表",
       },
       // 用户列表数据
       userList: [],
@@ -136,6 +160,10 @@ export default {
       addOrEdit: true,
       rowState: {},
       editFrom: {}, // 编辑用户的表单数据
+      roleDialogVisible: false, // 分配角色的对话框
+      userInfo: {}, // 用户信息
+      roleList: [], // 角色列表
+      selectedRoleId: "", // 选中的角色id
     };
   },
   mounted() {
@@ -215,42 +243,97 @@ export default {
     // 点击删除按钮
     delUser(id) {
       console.log(id);
-        // 气泡框
-        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
+      // 气泡框
+      this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
           this.axios.delete(`users/${id}`).then(res => {
             console.log(res.data);
             if (res.data.meta.status === 200) {
               this.$message({
-                type: 'success',
-                message: '删除用户成功!'
+                type: "success",
+                message: "删除用户成功!",
               });
               this.getUserList();
             } else {
               this.$message({
-                type: 'error',
-                message: '删除用户失败!'
+                type: "error",
+                message: "删除用户失败!",
               });
             }
-          })
-        }).catch(() => {
+          });
+        })
+        .catch(() => {
           this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
+            type: "info",
+            message: "已取消删除",
+          });
         });
     },
-  },
-  watch: {
-    "this.dialogVisible"(newValue, oldValue) {
-      console.log("newValue", newValue);
-      console.log("oldValue", oldValue);
+    // 点击分配角色按钮
+    setRole(row) {
+      // console.log();
+      // 获取角色列表
+      this.axios.get("roles").then(res => {
+        console.log("获取角色列表", res.data);
+        if (res.data.meta.status === 200) {
+          this.roleList = res.data.data;
+        } else {
+          this.$message({
+            type: "error",
+            message: "获取角色列表失败",
+          });
+        }
+      });
+
+      this.userInfo = row;
+      this.roleDialogVisible = true;
+    },
+    // 点击分配角色对话框的确定按钮
+    savaRoleInfo() {
+      console.log("分配角色", this.selectedRoleId);
+      if(!this.selectedRoleId){
+        this.$message({
+          type: "error",
+          message: "请选择角色",
+        });
+        return
+      }
+      this.axios
+        .put(`users/${this.userInfo.id}/role`, {
+          rid: this.selectedRoleId,
+        })
+        .then(res => {
+          console.log("分配角色", res.data);
+          if (res.data.meta.status === 200) {
+            this.$message({
+              type: "success",
+              message: "分配角色成功",
+            });
+            this.roleDialogVisible = false;
+            this.getUserList();
+          } else {
+            this.$message({
+              type: "error",
+              message: "分配角色失败",
+            });
+          }
+        });
+    },
+    // 关闭对话框
+    closeRole() {
+     
+    this.selectedRoleId = ''
+      
+    
+      
     },
   },
-  components: { Dialog },
+
+  components: { Dialog, BreadCrumb },
 };
 </script>
 
