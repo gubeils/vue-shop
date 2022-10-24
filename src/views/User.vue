@@ -110,7 +110,12 @@
       :editFrom="editFrom"
     />
     <!-- 分配角色弹框 -->
-    <el-dialog title="分配角色" :visible.sync="roleDialogVisible" width="50%" @close="closeRole">
+    <el-dialog
+      title="分配角色"
+      :visible.sync="roleDialogVisible"
+      width="50%"
+      @close="closeRole"
+    >
       <div>
         <p>当前的用户:{{ userInfo.username }}</p>
         <p>当前的用户:{{ userInfo.role_name }}</p>
@@ -295,12 +300,12 @@ export default {
     // 点击分配角色对话框的确定按钮
     savaRoleInfo() {
       console.log("分配角色", this.selectedRoleId);
-      if(!this.selectedRoleId){
+      if (!this.selectedRoleId) {
         this.$message({
           type: "error",
           message: "请选择角色",
         });
-        return
+        return;
       }
       this.axios
         .put(`users/${this.userInfo.id}/role`, {
@@ -325,11 +330,7 @@ export default {
     },
     // 关闭对话框
     closeRole() {
-     
-    this.selectedRoleId = ''
-      
-    
-      
+      this.selectedRoleId = "";
     },
   },
 
