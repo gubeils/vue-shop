@@ -321,10 +321,12 @@ export default {
         }
       });
     },
+
     // 编辑分类关闭时触发
     editCateDialogClose() {
       this.$refs.editruleForm.resetFields();
     },
+
     // 编辑分类
     editCate() {
       this.$refs.editruleForm.validate(valid => {
@@ -345,6 +347,7 @@ export default {
         }
       });
     },
+
     // 删除分类
     delCate(row) {
       this.$confirm("此操作将永久删除该分类, 是否继续?", "提示", {
@@ -374,8 +377,6 @@ export default {
     },
   },
 };
-
-
 </script>
 
 <style lang="scss" scoped>

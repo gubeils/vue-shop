@@ -45,6 +45,11 @@ const routes = [
         name: 'categories',
         component: () => import('../views/goods/Cate.vue'),
       },
+      {
+        path: '/home/params',
+        name: 'params',
+        component: () => import('../views/goods/Params.vue'),
+      },
     ],
   },
 ];
